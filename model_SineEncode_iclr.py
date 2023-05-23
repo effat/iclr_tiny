@@ -81,6 +81,8 @@ class MultiHeadedAttention(nn.Module):
         out = out.transpose(1, 2).contiguous().view(batch_size, seq_length, self.total_size)
         return out, self.prob_attn
 
+### Sinosoidal Positional Encoding
+
 class PositionalEmbedding(nn.Module):
     # formula https://datascience.stackexchange.com/questions/51065/what-is-the-positional-encoding-in-the-transformer-model
 
@@ -153,16 +155,16 @@ class PositionalEmbedding(nn.Module):
 class SRL_KT(nn.Module):
     def __init__(self, embed_size, num_attn_layers, num_heads,
                   max_pos, drop_prob, id_to_orgDict, USE_dict, ablation_Dict):
-        """Self-attentive knowledge tracing.
+        """ Reading and Learning Activities knowledge tracing.
         Arguments:
-            num_items (int): number of items
-            num_skills (int): number of skills
             embed_size (int): input embedding and attention dot-product dimension
             num_attn_layers (int): number of attention layers
             num_heads (int): number of parallel attention heads
-            encode_pos (bool): if True, use relative position embeddings
             max_pos (int): number of position embeddings to use
             drop_prob (float): dropout probability
+            id_to_orgDict: Re-indexed ID to original question ID in the dataset mapping. Original question ID in the dataset is re-indexed to ), 1, 2, ...
+            USE_dict: ID to universal sentence encoder mapping
+            ablation_Dict: Ablation component
         """
         super(SRL_KT, self).__init__()
         self.embed_size = embed_size
@@ -279,7 +281,7 @@ class SRL_KT(nn.Module):
 
     
         
-        ## include pe
+        ## include Sinosoidal Positioning Encoding
         pe_inputs = self.pe(inputs, is_interaction = 1)
         inputs = inputs + pe_inputs
 
@@ -334,8 +336,7 @@ class SRL_KT(nn.Module):
         #if self.ablation_dict["qrespCos_include"] == True:
         inputs = F.relu(self.lin_in_interaction(inputs))
 
-        #if self.ablation_dict["qrespCos_include"] == False:
-        #    inputs = F.relu(self.lin_in_interaction_ablation(inputs))
+     
         
        
         query_embed = self.get_query(item_ids)
